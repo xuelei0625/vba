@@ -1,0 +1,506 @@
+Option Explicit
+
+Sub 回访部签收资源一次续单跟踪()
+
+Application.ScreenUpdating = False '关闭屏幕更新
+Application.DisplayAlerts = False '关闭警告提醒
+
+On Error Resume Next
+Dim rng As Range, temp As String, temp1 As String
+
+Sheets(1).Columns("A:A").Cut
+Sheets(1).Columns("E:E").Insert Shift:=xlToRight
+Sheets(1).Columns("A:A").Insert Shift:=xlToRight, CopyOrigin:=xlFormatFromLeftOrAbove
+Sheets(1).[A1] = "序号"
+
+'删除不需要的列
+Sheets(1).Range("B:C,K:K,N:N,P:T,V:Y").Delete
+
+'删除"客户编号"列空的行
+Sheets(1).Columns("E:E").SpecialCells(xlCellTypeBlanks).EntireRow.Delete
+
+'sheets("订单明细")的订单记录匹配sheets("土豆签收资源")
+For Each rng In Worksheets("订单明细").Range("E2:E" & Worksheets("订单明细").UsedRange.Rows.Count)
+ rng = Application.VLookup(rng, Worksheets("土豆签收资源").[A:A], 1, 0)
+Next rng
+    
+'删除E列("客户编号")未匹配到的记录(#N/A)
+Sheets("订单明细").[E:E].SpecialCells(xlCellTypeConstants, 16).EntireRow.Delete
+
+'删除原始第一次OC订单,利用sheets("土豆签收资源")的B列"订单编号"匹配,"订单编号"在C列,删除非#N/A
+For Each rng In Worksheets("订单明细").Range("C2:C" & Worksheets("订单明细").UsedRange.Rows.Count)
+ If Application.VLookup(rng, Worksheets("土豆签收资源").[B:B], 1, 0) = "#N/A" Then
+  rng.Value = rng.Value
+  Else
+  rng.Value = "#N/A"
+ End If
+Next rng
+
+'删除C列("订单编号")第一单OC(#N/A)
+Sheets(1).[C:C].SpecialCells(xlCellTypeConstants, 16).EntireRow.Delete
+'---------------------------------------------------------------------------------------------------------------------------------------------
+'变中心
+ Sheets("订单明细").Columns("H:H").Insert Shift:=xlToRight, CopyOrigin:=xlFormatFromLeftOrAbove
+ Sheets("订单明细").Columns("G:G").Copy Destination:=Sheets("订单明细").Range("H1")
+ Sheets("订单明细").Range("H1") = "中心"
+ 
+ For Each rng In Sheets("订单明细").Range("H2:H" & Sheets("订单明细").UsedRange.Rows.Count)
+   temp = Left(rng, 2)
+    
+      If rng = 1801 Or rng = 1810 Or rng = 1811 Then
+          rng.Value = "81中心"
+         ElseIf rng = 1802 Or rng = 1820 Or rng = 1850 Then
+          rng.Value = "82中心"
+         ElseIf rng = 1803 Or rng = 1830 Or rng = 1831 Then
+          rng.Value = "83中心"
+         ElseIf rng = 1804 Or rng = 1840 Then
+          rng.Value = "84中心"
+      
+       '回访二部
+       ElseIf rng = 1500 Or rng = 1510 Then
+       rng.Value = "51中心"
+       ElseIf rng = 1520 Or rng = 1521 Or rng = 1592 Then
+       rng.Value = "52中心"
+       ElseIf rng = 1530 Or rng = 1593 Then
+       rng.Value = "53中心"
+       ElseIf rng = 1540 Or rng = 1541 Or rng = 1595 Then
+       rng.Value = "55中心"
+       ElseIf rng = 1551 Or rng = 1596 Then
+       rng.Value = "56中心"
+        ElseIf rng = "158A" Or rng = "158B" Or rng = 1598 Then
+       rng.Value = "58中心"
+       ElseIf rng = 7910 Or rng = 7911 Then
+       rng.Value = "回二岗前中心"
+       
+       ElseIf rng = 7901 Or rng = 1550 Or rng = "155A" Or rng = "155B" Then
+       rng.Value = "回二61中心"
+       ElseIf rng = 7921 Or rng = 7920 Or rng = 7922 Or rng = 7923 Then
+       rng.Value = "回二62中心"
+       ElseIf rng = 7931 Or rng = 7930 Or rng = 7932 Or rng = 7933 Then
+       rng.Value = "回二63中心"
+       ElseIf rng = 7941 Or rng = 7940 Then
+       rng.Value = "回二64中心"
+       ElseIf rng = 7950 Or rng = 7951 Then
+       rng.Value = "回二65中心"
+       ElseIf rng = 7960 Or rng = 7961 Then
+       rng.Value = "回二66中心"
+       ElseIf rng = 7970 Or rng = 7971 Then
+       rng.Value = "回二67中心"
+       ElseIf rng = "798A" Then
+       rng.Value = "回二68中心"
+       ElseIf rng = "799A" Then
+       rng.Value = "回二69中心"
+       
+       '回访三部
+        '一区
+       ElseIf rng = 1795 Or rng = "17A1" Or rng = "17A2" Or rng = "17A3" Then
+       rng.Value = "新七171中心"
+       ElseIf rng = 1780 Or rng = 1781 Or rng = 1782 Then
+       rng.Value = "新七178中心"
+       ElseIf rng = 1750 Or rng = 1751 Or rng = 1752 Or rng = 1797 Then
+       rng.Value = "新七179中心" '2014.08.01由回三77中心变成新七179中心
+       ElseIf rng = "179A" Then
+       rng.Value = "新七79中心"
+       
+        '二区
+       ElseIf rng = 1700 Or rng = 1732 Or rng = "17F3" Then
+       rng.Value = "新七71中心"
+       ElseIf rng = 1710 Or rng = 1740 Or rng = 1749 Or rng = 1792 Then
+       rng.Value = "新七172中心" '2014.08.01由回三72中心变成新七172中心
+       ElseIf rng = 1761 Or rng = 1762 Or rng = 1796 Then
+       rng.Value = "新七72中心"
+       ElseIf rng = "17C0" Or rng = "17C1" Or rng = "17C2" Or rng = "17C3" Then
+       rng.Value = "新七173中心"
+       
+       '三区
+       ElseIf rng = 1730 Or rng = 1741 Or rng = 1794 Or rng = 1743 Or rng = 1744 Then
+       rng.Value = "新七174中心"
+       ElseIf rng = "17D0" Or rng = "17D1" Then
+       rng.Value = "新七74中心"
+       ElseIf rng = "17F0" Or rng = "17F1" Or rng = "17F2" Or rng = 1731 Then
+       rng.Value = "新七176中心"
+       ElseIf rng = "17G0" Or rng = "17G1" Or rng = "17G4" Then
+       rng.Value = "新七177中心"
+       
+       '四区
+       ElseIf rng = 1720 Or rng = 1733 Or rng = 1734 Or rng = 1793 Then
+       rng.Value = "新七170中心"
+       ElseIf rng = "17E0" Or rng = "17E1" Or rng = "17E2" Or rng = "17E3" Then
+       rng.Value = "新七175中心"
+
+       
+       '新事业二部
+       ElseIf rng = "791A" Or rng = 7919 Then
+       rng.Value = "41中心" '新二91中心
+       
+      
+       
+       ElseIf rng = 7969 Or rng = "796A" Or rng = "797A" Then
+       rng.Value = "35中心"
+       
+      ' ElseIf rng = 7969 Or rng = "796A" Then
+       'rng.Value = "新二96中心"
+       ElseIf rng = "797A" Or rng = 7979 Then
+       rng.Value = "新二97中心"
+       ElseIf rng = 7980 Or rng = 7981 Then
+       rng.Value = "39中心" '新二98中心
+       ElseIf rng = 7990 Or rng = 7991 Or rng = 7992 Then
+       rng.Value = "40中心" '新二99中心
+       ElseIf rng = "79A0" Or rng = "79A1" Then
+       rng.Value = "21中心"
+       
+      ' ElseIf rng = "79A0" Or rng = "79A1" Then
+       ' rng.Value = "新二100中心"
+      ' ElseIf rng = 7901 Then
+       'rng.Value = "新事业二部岗前"
+       
+       '★----------------------------------------------------------------------------★
+       ElseIf rng = "7A00" Or rng = "7A01" Then
+       rng.Value = "新二90中心"
+       ElseIf rng = 7910 Or rng = 7912 Then
+       rng.Value = "新二91中心"
+       ElseIf rng = 7929 Or rng = "792A" Then
+       rng.Value = "新二92中心"
+        ElseIf rng = "79A0" Or rng = "79A2" Then
+       rng.Value = "新二100中心"
+       
+       '新事业三部
+       ElseIf rng = 6900 Or rng = 6901 Or rng = 6092 Then
+       rng.Value = "新三110中心"
+       ElseIf rng = 6920 Or rng = 6921 Or rng = 6922 Or rng = 6923 Then
+       rng.Value = "新三111中心"
+       ElseIf rng = 6930 Or rng = 6931 Or rng = 6932 Then
+       rng.Value = "新三112中心"
+       ElseIf rng = 6940 Or rng = 6941 Then
+       rng.Value = "新三113中心"
+       ElseIf rng = 6950 Or rng = 6951 Or rng = 6952 Then
+       rng.Value = "新三115中心"
+       ElseIf rng = 6960 Or rng = 6961 Then
+       rng.Value = "新三116中心"
+       ElseIf rng = 6971 Then
+       rng.Value = "新三117中心"
+       ElseIf rng = 6981 Or rng = 6982 Then
+       rng.Value = "新三118中心"
+       ElseIf rng = 6990 Or rng = 6991 Then
+       rng.Value = "新三119中心"
+       ElseIf rng = "69A0" Or rng = "69A1" Then
+       rng.Value = "新三120中心"
+       
+       '新事业四部
+        ElseIf rng = 8110 Or rng = 8111 Or rng = 8112 Then
+       rng.Value = "新四130中心"
+       ElseIf rng = 8120 Or rng = 8121 Or rng = 8122 Then
+       rng.Value = "新四131中心"
+       ElseIf rng = 8130 Or rng = 8131 Then
+       rng.Value = "新四132中心"
+       ElseIf rng = 8140 Or rng = 8141 Or rng = 8142 Then
+       rng.Value = "新四133中心"
+       ElseIf rng = 8150 Or rng = 8151 Or rng = 8152 Or rng = 8153 Or rng = 8154 Then
+       rng.Value = "新四135中心"
+       ElseIf rng = 8160 Or rng = 8161 Then
+       rng.Value = "新四136中心"
+       ElseIf rng = 8170 Or rng = 8171 Then
+       rng.Value = "新四137中心"
+       ElseIf rng = "810A" Or rng = 8109 Then
+       rng.Value = "新四岗前"
+       
+       '新事业五部
+       ElseIf rng = 8310 Or rng = 8311 Then
+       rng.Value = "新五150中心"
+       ElseIf rng = 8320 Or rng = 8321 Then
+       rng.Value = "新五151中心"
+       ElseIf rng = 8330 Or rng = 8331 Or rng = 8332 Then
+       rng.Value = "新五152中心"
+       ElseIf rng = 8340 Or rng = 8341 Or rng = 8342 Or rng = 8343 Then
+       rng.Value = "新五153中心"
+       ElseIf rng = 8360 Or rng = 8361 Or rng = 8362 Then
+       rng.Value = "新五156中心"
+       ElseIf rng = 8351 Or rng = 8352 Then
+       rng.Value = "新五158中心"
+       
+       '新事业八部
+       ElseIf rng = "85A0" Or rng = "85A1" Then
+       rng.Value = "新八180中心"
+       ElseIf rng = 8510 Or rng = 8511 Or rng = 8512 Then
+       rng.Value = "新八181中心"
+       ElseIf rng = 8520 Or rng = 8521 Or rng = 8522 Then
+       rng.Value = "新八182中心"
+       ElseIf rng = 8530 Or rng = 8531 Then
+       rng.Value = "新八183中心"
+       ElseIf rng = 8540 Or rng = 8541 Or rng = 8542 Then
+       rng.Value = "新八185中心"
+       ElseIf rng = 8560 Or rng = 8561 Then
+       rng.Value = "新八186中心"
+       ElseIf rng = 8570 Or rng = 8571 Then
+       rng.Value = "新八187中心"
+       
+       ElseIf rng = 8590 Or rng = 8591 Then
+       rng.Value = "新八189中心"
+       
+       '新事业九部
+       ElseIf rng = 2910 Or rng = 2911 Or rng = 2912 Then
+       rng.Value = "新九190中心"
+       ElseIf rng = 2920 Or rng = 2921 Then
+       rng.Value = "新九191中心"
+       ElseIf rng = 2951 Or rng = 2952 Then
+       rng.Value = "新九195中心"
+       ElseIf rng = 2960 Or rng = 2961 Or rng = 2962 Then
+       rng.Value = "新九196中心"
+       ElseIf rng = 2980 Or rng = 2981 Then
+       rng.Value = "新九198中心"
+       
+       '新事业十部
+       ElseIf rng = 8911 Then
+       rng.Value = "新十200中心"
+       ElseIf rng = 8920 Or rng = 8921 Or rng = 8922 Then
+       rng.Value = "新十201中心"
+       ElseIf rng = 8931 Then
+       rng.Value = "新十202中心"
+       ElseIf rng = 8940 Or rng = 8941 Then
+       rng.Value = "新十203中心"
+       ElseIf rng = 8950 Or rng = 8951 Then
+       rng.Value = "新十204中心"
+       
+ 
+       '新事业十一部
+       ElseIf rng = 3110 Or rng = 3111 Then
+       rng.Value = "新十一210中心"
+       ElseIf rng = 3120 Or rng = 3121 Then
+       rng.Value = "新十一211中心"
+       ElseIf rng = 3130 Or rng = 3131 Then
+       rng.Value = "新十一212中心"
+       
+       
+       '其他
+       ElseIf rng = 9010 Then
+       rng.Value = "展厅"
+       ElseIf rng = 9020 Then
+       rng.Value = "微信事业部"
+       ElseIf rng = 9210 Then
+       rng.Value = "市场营销"
+       ElseIf rng = 9211 Then
+       rng.Value = "网销A"
+       ElseIf rng = 9212 Then
+       rng.Value = "网销B"
+       ElseIf rng = 9213 Then
+       rng.Value = "网销C"
+       ElseIf rng = 8000 Or rng = 8200 Then
+       rng.Value = "家购"
+       
+       '---------------------------------------------------------------------------------------------------------------------------------------
+       ElseIf temp = 11 Then
+       rng.Value = "一中心"
+       ElseIf temp = 12 Then
+        rng.Value = "五中心"
+       ElseIf temp = 13 Then
+       rng.Value = "三中心"
+       ElseIf temp = 14 Then
+       rng.Value = "四中心"
+       ElseIf rng = 2700 Or rng = 2710 Then
+       rng.Value = "七中心"
+       ElseIf temp = 19 Then
+       rng.Value = "九中心"
+       
+       ElseIf temp = 21 Then
+       rng.Value = "十一中心"
+       ElseIf temp = 22 Then
+        rng = "十二中心"
+        
+       ElseIf temp = 61 Then
+       rng.Value = "21中心"
+       ElseIf temp = 62 Then
+       rng.Value = "22中心"
+       ElseIf temp = 63 Then
+       rng.Value = "23中心"
+       ElseIf temp = 64 Then
+       rng.Value = "24中心"
+       ElseIf temp = 65 Then
+       rng.Value = "25中心"
+       ElseIf temp = 66 Then
+       rng.Value = "26中心"
+       ElseIf temp = 67 Then
+       rng.Value = "27中心"
+       
+       
+       ElseIf rng = 6800 Or rng = 6810 Or rng = 6820 Or rng = 6830 Then
+       rng.Value = "28中心"
+       ElseIf rng = 6890 Or rng = 6891 Or rng = 6892 Then
+       rng.Value = "29中心"
+       ElseIf rng = 6021 Or rng = 7010 Then
+       rng.Value = "30中心"
+       ElseIf rng = 7110 Or rng = 7100 Then
+       rng.Value = "31中心"
+       ElseIf rng = 6910 Or rng = 6911 Or rng = 6912 Then
+       rng.Value = "32中心"
+       ElseIf rng = 7190 Or rng = 7191 Then
+       rng.Value = "33中心"
+       ElseIf rng = 7200 Or rng = 7201 Then
+       rng.Value = "34中心"
+       ElseIf rng = 7210 Or rng = 7211 Or rng = 7212 Or rng = 7213 Then
+       rng.Value = "36中心"
+       ElseIf rng = 7220 Or rng = 7221 Or rng = 7222 Then
+       rng.Value = "37中心"
+       ElseIf rng = 7240 Or rng = 7241 Then
+       rng.Value = "38中心"
+       ElseIf rng = 7230 Or rng = 7231 Then
+       rng.Value = "39中心"
+       ElseIf rng = 7250 Or rng = 7251 Then
+       rng.Value = "42中心"
+       
+       ElseIf rng = 2000 Or rng = 2010 Then
+       rng.Value = "10中心"
+       ElseIf temp = 16 Or rng = 2310 Or rng = 2311 Or rng = 2312 Then
+       rng.Value = "11中心"
+       ElseIf rng = 2320 Or rng = 2321 Or rng = 2322 Or rng = 2323 Then
+       rng.Value = "12中心"
+       ElseIf temp = 28 Or rng = 2330 Or rng = 2331 Or rng = 2332 Or rng = 2333 Then
+       rng.Value = "13中心"
+       ElseIf rng = 2350 Or rng = 2351 Or rng = 2352 Then
+       rng.Value = "15中心"
+       ElseIf rng = "23A0" Or rng = "23A1" Or rng = "23A2" Then
+       rng.Value = "16中心"
+       ElseIf rng = 2390 Or rng = 2391 Or rng = 2392 Then
+       rng.Value = "17中心"
+       ElseIf rng = "23B0" Or rng = "23B1" Then
+       rng.Value = "18中心"
+       
+       Else
+       rng.Value = rng.Value
+      End If
+Next rng
+'--------------------------------------------------------------------------------------------------------------------------------------------
+'对订单记录进行多重排序:客户编号(升序),订单状态(COSPLDNBA),订购日期(升序)
+
+Worksheets("订单明细").Sort.SortFields.Clear
+
+Worksheets("订单明细").Sort.SortFields.Add Key:=Range("E2:E" & Sheets(1).UsedRange.Rows.Count) _
+        , SortOn:=xlSortOnValues, Order:=xlAscending, DataOption:=xlSortNormal
+Worksheets("订单明细").Sort.SortFields.Add Key:=Range("B2:B" & Sheets("订单明细").UsedRange.Rows.Count) _
+        , SortOn:=xlSortOnValues, Order:=xlAscending, CustomOrder:= _
+        "C,O,S,P,L,D,N,B,A,", DataOption:=xlSortNormal
+Worksheets("订单明细").Sort.SortFields.Add Key:=Range("D2:D" & Sheets("订单明细").UsedRange.Rows.Count) _
+        , SortOn:=xlSortOnValues, Order:=xlAscending, DataOption:=xlSortNormal
+    With Worksheets("订单明细").Sort
+        .SetRange Range("A1:M" & Sheets(1).UsedRange.Rows.Count)
+        .Header = xlYes
+        .MatchCase = False
+        .Orientation = xlTopToBottom
+        .SortMethod = xlPinYin
+        .Apply
+    End With
+    
+'只保留第一单,删除重复值(根据客户编号,在第5列)
+
+Sheets("订单明细").Range("$A$1:$M$" & Sheets("订单明细").UsedRange.Rows.Count).RemoveDuplicates Columns:=5, Header:=xlYes
+
+
+Worksheets("订单明细").Sort.SortFields.Clear
+Worksheets("订单明细").Sort.SortFields.Add Key:=Range("H2:H" & Sheets("订单明细").UsedRange.Rows.Count) _
+        , SortOn:=xlSortOnValues, Order:=xlAscending, CustomOrder:= _
+        "一中心,二中心,三中心,四中心,九中心,51中心,52中心,53中心,55中心,56中心,58中心,71中心,72中心,73中心,74中心,75中心,76中心,77中心", DataOption:=xlSortNormal
+Worksheets("订单明细").Sort.SortFields.Add Key:=Range("B2:B" & Sheets("订单明细").UsedRange.Rows.Count) _
+        , SortOn:=xlSortOnValues, Order:=xlAscending, CustomOrder:= _
+        "C,O,S,P,L,D,N,B,A,", DataOption:=xlSortNormal
+        With Worksheets("订单明细").Sort
+        .SetRange Range("A1:M" & Sheets(1).UsedRange.Rows.Count)
+        .Header = xlYes
+        .MatchCase = False
+        .Orientation = xlTopToBottom
+        .SortMethod = xlPinYin
+        .Apply
+    End With
+
+'-------------------------------------------------------------------------------------------------------------------------------------------
+'把sheets("订单明细")进行复制,粘贴到sheets("订单明细(状态准)")
+Sheets("订单明细 (状态准)").Cells.Clear '先把此表清空再粘贴新的内容进去
+Sheets("订单明细").UsedRange.Copy Sheets("订单明细 (状态准)").[A1]
+    
+'将sheets("订单明细")中的O→C,N→D
+Sheets("订单明细").[B:B].Replace What:="O", Replacement:="C", LookAt:=xlPart, SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, ReplaceFormat:=False
+Sheets("订单明细").[B:B].Replace What:="N", Replacement:="D", LookAt:=xlPart, SearchOrder:=xlByRows, MatchCase:=False, SearchFormat:=False, ReplaceFormat:=False
+    
+    
+'将订单明细表进行筛选,非发货状态筛选出来复制到sheets("A单"),再将其删除
+Sheets("A单").Cells.Clear '删除sheets("A单")里面的内容
+Worksheets("订单明细").UsedRange.AutoFilter Field:=2, Criteria1:=Array("5", "7", "8", "H", "K", "B", "A"), Operator:=xlFilterValues
+Worksheets("订单明细").UsedRange.SpecialCells(xlCellTypeVisible).Copy Destination:=Worksheets("A单").Range("A1")
+Worksheets("订单明细").Range("A2:A" & Sheets("订单明细").UsedRange.Rows.Count).SpecialCells(xlCellTypeVisible).EntireRow.Delete
+
+'工作表里有自动筛选则取消
+If Worksheets("订单明细").AutoFilterMode Then Worksheets("订单明细").AutoFilterMode = False
+
+'----------------------------------------------------------------------------------------------------------------------------------------
+ '更改数据源(数据透视表1)
+ Sheets("透视").PivotTables("数据透视表1").ChangePivotCache ActiveWorkbook.PivotCaches.Create(SourceType:=xlDatabase, SourceData:= _
+  Sheets("订单明细").UsedRange, Version:=xlPivotTableVersion12)
+  
+'----------------------------------------------------------------------------------------------------------------------------------------
+'如果单元格值为0,则将其单元格格式设置为";;;"
+Sheets("续单率").[B3:R102].NumberFormatLocal = "G/通用格式" '先恢复为常规格式
+For Each rng In Sheets("续单率").[B3:R102]
+ If rng.Value = 0 Then
+  rng.NumberFormatLocal = ";;;"
+ End If
+Next rng
+
+Sheets("续单率").Range("F3:F102").NumberFormatLocal = "0.00%" '百分比设置为保留2位
+Sheets("续单率").Range("Q3:Q102").NumberFormatLocal = "0.00%"
+Sheets("续单率").Range("E3:E102").NumberFormatLocal = "0_ " '客单价小数位无保留
+
+Sheets("续单率").Columns("A:R").Hidden = False '取消隐藏
+
+'如果某一个状态订单数为0,则将其对应的列隐藏
+If Sheets("续单率").[H102].Value = 0 Then
+   Sheets("续单率").Columns("H:I").Hidden = True
+End If
+
+If Sheets("续单率").[J102].Value = 0 Then
+   Sheets("续单率").Columns("J:K").Hidden = True
+End If
+
+If Sheets("续单率").[L102].Value = 0 Then
+   Sheets("续单率").Columns("L:M").Hidden = True
+End If
+
+If Sheets("续单率").[N102].Value = 0 Then
+   Sheets("续单率").Columns("N:O").Hidden = True
+End If
+  
+'---------------------------------------------------------------------------------------------------------------------------------------------
+'序号列自动填充
+    Sheets(1).Range("A2").Value = 1
+    Sheets(1).Range("A3").Value = 2
+    Sheets(1).Range("A2:A3").AutoFill Destination:=Sheets(1).Range("A2:A" & Sheets(1).UsedRange.Rows.Count)
+    
+    Sheets(2).Range("A2").Value = 1
+    Sheets(2).Range("A3").Value = 2
+    Sheets(2).Range("A2:A3").AutoFill Destination:=Sheets(2).Range("A2:A" & Sheets(2).UsedRange.Rows.Count)
+    
+    Sheets("A单").Range("A2").Value = 1
+    Sheets("A单").Range("A3").Value = 2
+    Sheets("A单").Range("A2:A3").AutoFill Destination:=Sheets("A单").Range("A2:A" & Sheets("A单").UsedRange.Rows.Count)
+    
+    'B列设置为常规格式
+    Sheets(1).Columns("B:B").NumberFormatLocal = "G/通用格式"
+    Sheets(2).Columns("B:B").NumberFormatLocal = "G/通用格式"
+    
+    '首行首行居中
+    Sheets(1).Range("A1:B" & Sheets(1).UsedRange.Rows.Count).HorizontalAlignment = xlCenter
+    Sheets(1).Rows("1:1").HorizontalAlignment = xlCenter
+    
+    Sheets(2).Range("A1:B" & Sheets(2).UsedRange.Rows.Count).HorizontalAlignment = xlCenter
+    Sheets(2).Rows("1:1").HorizontalAlignment = xlCenter
+
+    Sheets("A单").Range("A1:B" & Sheets("A单").UsedRange.Rows.Count).HorizontalAlignment = xlCenter
+    Sheets("A单").Rows("1:1").HorizontalAlignment = xlCenter
+  
+    '自动调整列宽
+    Sheets(1).Columns("B:E").EntireColumn.AutoFit
+    Sheets(1).Columns("M:M").EntireColumn.AutoFit
+    Sheets(2).Columns("C:E").EntireColumn.AutoFit
+    Sheets(2).Columns("M:M").EntireColumn.AutoFit
+    Sheets("A单").Columns("M:M").EntireColumn.AutoFit
+'-------------------------------------------------------------------------------------------------------------------------------
+Application.DisplayAlerts = True  '开启警告提醒
+Application.ScreenUpdating = True '开启屏幕更新
+End Sub
